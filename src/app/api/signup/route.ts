@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSite } from "@/lib/analytics";
+import { setSession } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     }
 
     const site = await createSite({ name, email, domain });
+    await setSession(email);
     if (!contentType.includes("application/json")) {
       return new Response(successHtml(site.siteName, site.script), {
         headers: { "content-type": "text/html; charset=utf-8" },
@@ -52,7 +54,7 @@ function successHtml(siteName: string, script: string) {
       <h1>${escapeHtml(siteName)}</h1>
       <p>Paste this script before the closing head tag on your website.</p>
       <pre>${escapeHtml(script)}</pre>
-      <a href="/dashboard">Open dashboard</a>
+      <a href="/app">Open app</a>
     </div>
   </main>
 </body>

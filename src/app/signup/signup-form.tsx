@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { ArrowRight, Copy } from "lucide-react";
+import { ArrowRight, Copy, LayoutDashboard } from "lucide-react";
 
 type SignupResponse = {
   siteId: string;
@@ -52,6 +52,12 @@ export default function SignupForm() {
         >
           <Copy size={17} /> {copied ? "Copied" : "Copy script"}
         </button>
+        <a
+          href="/app"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded border border-black/15 bg-white px-5 py-3 font-medium text-[#111] hover:bg-black/5"
+        >
+          <LayoutDashboard size={17} /> Open app
+        </a>
       </div>
     );
   }

@@ -112,7 +112,7 @@ export default function Home() {
       </nav>
 
       {view === "landing" && <Landing onSignup={() => setView("signup")} onDemo={() => setView("dashboard")} />}
-      {view === "signup" && <Signup onCreated={(result) => { setSignup(result); setView("dashboard"); }} />}
+      {view === "signup" && <Signup onCreated={(result) => setSignup(result)} created={signup} />}
       {view === "dashboard" && (
         <Dashboard
           data={dashboard}
@@ -273,7 +273,7 @@ function Landing({ onSignup, onDemo }: { onSignup: () => void; onDemo: () => voi
   );
 }
 
-function Signup({ onCreated }: { onCreated: (result: SignupResponse) => void }) {
+function Signup({ onCreated, created }: { onCreated: (result: SignupResponse) => void; created: SignupResponse | null }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -294,6 +294,24 @@ function Signup({ onCreated }: { onCreated: (result: SignupResponse) => void }) 
       return;
     }
     onCreated(json);
+  }
+
+  if (created) {
+    return (
+      <section className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1fr]">
+        <div className="flex flex-col justify-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Site created</p>
+          <h1 className="mt-3 text-5xl font-semibold tracking-tight">{created.siteName} is ready.</h1>
+          <p className="mt-5 text-lg leading-8 text-black/60">Paste the script on your website, then open your workspace to manage the site and view real traffic.</p>
+        </div>
+        <div className="rounded border border-black/10 bg-white p-6 shadow-xl shadow-black/5">
+          <pre className="overflow-auto rounded bg-[#111] p-4 text-xs leading-6 text-white">{created.script}</pre>
+          <a className="mt-5 flex w-full items-center justify-center gap-2 rounded bg-[#111] px-5 py-3 font-medium text-white" href="/app">
+            Open app <ArrowRight size={17} />
+          </a>
+        </div>
+      </section>
+    );
   }
 
   return (
