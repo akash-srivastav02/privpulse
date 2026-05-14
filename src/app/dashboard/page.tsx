@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Activity, BarChart3, Copy, LayoutDashboard, Sparkles } from "lucide-react";
+import { Activity, BarChart3, Code2, ExternalLink, LayoutDashboard, Sparkles } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getDashboard, listSitesForOwner, trackingScript } from "@/lib/analytics";
+import CopyScriptButton from "./copy-script-button";
 
 export default async function DashboardPage({
   searchParams,
@@ -24,6 +25,8 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
   const data = await getDashboard(siteId, range);
   const max = Math.max(...data.series.map((point) => point.pageviews), 1);
   const script = trackingScript(siteId);
+  const isDemo = siteId === "pp_demo_india";
+  const hasTraffic = data.metrics.pageviews > 0 || data.metrics.events > 0;
 
   return (
     <main className="min-h-screen bg-[#f6f3ec] text-[#191a17]">
@@ -33,7 +36,9 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
             <span className="grid size-8 place-items-center rounded bg-[#111] text-white"><Activity size={17} /></span>
             <span className="font-semibold tracking-tight">PrivPulse</span>
           </Link>
-          <Link className="rounded bg-[#111] px-4 py-2 text-sm font-medium text-white" href="/signup">Start free</Link>
+          <Link className="rounded bg-[#111] px-4 py-2 text-sm font-medium text-white" href={isDemo ? "/signup" : "/app"}>
+            {isDemo ? "Start free" : "Open app"}
+          </Link>
         </div>
       </nav>
 
@@ -47,14 +52,21 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
                 <div className="text-xs text-black/45">Free plan</div>
               </div>
             </div>
-            <div className="mt-4 space-y-1 text-sm">
-              {["Overview", "Pages", "Sources", "Goals", "Settings"].map((item, index) => (
-                <div key={item} className={`rounded px-3 py-2 ${index === 0 ? "bg-black text-white" : "text-black/65"}`}>{item}</div>
-              ))}
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="rounded bg-black px-3 py-2 text-white">Overview</div>
+              <Link href="/app" className="flex items-center justify-between rounded px-3 py-2 text-black/65 hover:bg-black/5">
+                Manage sites <ExternalLink size={14} />
+              </Link>
             </div>
             <div className="mt-5 rounded bg-[#f6f3ec] p-3">
-              <div className="mb-2 flex items-center gap-2 text-sm font-medium"><Copy size={15} /> Install script</div>
-              <pre className="max-h-28 overflow-auto whitespace-pre-wrap text-xs text-black/55">{script}</pre>
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium"><Code2 size={15} /> Install script</div>
+              <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-white p-3 text-xs leading-5 text-black/65">{script}</pre>
+              <CopyScriptButton script={script} />
+              {!isDemo && !hasTraffic && (
+                <p className="mt-3 text-xs leading-5 text-black/50">
+                  After pasting this in your site, open the site once and refresh this dashboard.
+                </p>
+              )}
             </div>
           </aside>
 
@@ -63,6 +75,9 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight">{data.site.name}</h1>
                 <p className="mt-1 flex items-center gap-2 text-sm text-black/55"><span className="size-2 rounded-full bg-emerald-600" /> {data.realtime} visitors right now</p>
+                {!isDemo && !hasTraffic && (
+                  <p className="mt-2 text-sm text-amber-700">No traffic has arrived yet. Check that the install script is present on your live website.</p>
+                )}
               </div>
               <div className="flex gap-2">
                 {["7d", "30d", "90d"].map((item) => (
@@ -72,18 +87,23 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Metric label="Visitors" value={data.metrics.visitors.toLocaleString()} note="+12.4%" />
-              <Metric label="Pageviews" value={data.metrics.pageviews.toLocaleString()} note="+8.7%" />
+              <Metric label="Visitors" value={data.metrics.visitors.toLocaleString()} note={hasTraffic ? "tracked" : "waiting"} />
+              <Metric label="Pageviews" value={data.metrics.pageviews.toLocaleString()} note={hasTraffic ? "tracked" : "waiting"} />
               <Metric label="Events" value={data.metrics.events.toLocaleString()} note="tracked" />
-              <Metric label="Bounce rate" value={`${data.metrics.bounceRate}%`} note="-2.1%" />
+              <Metric label="Bounce rate" value={hasTraffic ? `${data.metrics.bounceRate}%` : "-"} note={hasTraffic ? "estimated" : "waiting"} />
             </div>
 
             <div className="rounded border border-black/10 bg-white p-5">
               <div className="mb-5 flex items-center gap-2 font-medium"><BarChart3 size={18} /> Pageviews over time</div>
-              <div className="flex h-56 items-end gap-2">
+              <div className="relative flex h-56 items-end gap-2">
+                {!hasTraffic && !isDemo && (
+                  <div className="absolute inset-0 grid place-items-center rounded bg-[#f6f3ec] text-sm text-black/55">
+                    Waiting for the first pageview
+                  </div>
+                )}
                 {data.series.map((point) => (
                   <div key={point.label} className="flex flex-1 flex-col items-center gap-2">
-                    <div className="w-full rounded-t bg-[#111]" style={{ height: `${Math.max(8, (point.pageviews / max) * 190)}px` }} />
+                    <div className={`w-full rounded-t ${hasTraffic || isDemo ? "bg-[#111]" : "bg-black/10"}`} style={{ height: `${Math.max(8, (point.pageviews / max) * 190)}px` }} />
                     <span className="text-[10px] text-black/45">{point.label}</span>
                   </div>
                 ))}
@@ -119,12 +139,13 @@ function Metric({ label, value, note }: { label: string; value: string; note: st
 }
 
 function Table({ title, rows }: { title: string; rows: { label: string; value: number }[] }) {
-  const max = Math.max(...rows.map((row) => row.value), 1);
+  const safeRows = rows.length ? rows : [{ label: "No data yet", value: 0 }];
+  const max = Math.max(...safeRows.map((row) => row.value), 1);
   return (
     <div className="rounded border border-black/10 bg-white p-5">
       <h3 className="mb-4 font-medium">{title}</h3>
       <div className="space-y-3">
-        {rows.map((row) => (
+        {safeRows.map((row) => (
           <div key={row.label}>
             <div className="mb-1 flex justify-between gap-4 text-sm">
               <span className="truncate text-black/70">{row.label}</span>
