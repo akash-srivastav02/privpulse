@@ -126,6 +126,7 @@ export default function Home() {
           }}
         />
       )}
+      <Footer />
     </main>
   );
 }
@@ -447,5 +448,21 @@ function Table({ title, rows }: { title: string; rows?: { label: string; value: 
         ))}
       </div>
     </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-black/10 bg-white">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-sm text-black/55 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div>PrivPulse. No-cookie analytics for lean teams.</div>
+        <div className="flex flex-wrap gap-4">
+          <a className="hover:text-black" href="/privacy">Privacy</a>
+          <a className="hover:text-black" href="/terms">Terms</a>
+          <a className="hover:text-black" href="/refund">Refunds</a>
+          <a className="hover:text-black" href="/dpdp">DPDP/GDPR</a>
+        </div>
+      </div>
+    </footer>
   );
 }
