@@ -16,6 +16,23 @@ export const metadata: Metadata = {
   title: "PrivPulse - DPDP-ready website analytics",
   description:
     "Affordable no-cookie website analytics for Indian businesses, indie founders, and agencies.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://privpulse.vercel.app"),
+  openGraph: {
+    title: "PrivPulse - DPDP-ready website analytics",
+    description:
+      "Affordable no-cookie analytics with real-time dashboards, custom events, and India-first pricing.",
+    url: "/",
+    siteName: "PrivPulse",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "PrivPulse analytics dashboard" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PrivPulse - DPDP-ready website analytics",
+    description:
+      "No-cookie website analytics for Indian businesses, indie founders, and agencies.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function RootLayout({

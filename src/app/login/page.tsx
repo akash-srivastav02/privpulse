@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Activity } from "lucide-react";
 import LoginForm from "./login-form";
 
 export default async function LoginPage({
@@ -14,7 +15,9 @@ export default async function LoginPage({
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[0.9fr_1fr] lg:items-center">
         <div>
           <Link href="/" className="inline-flex items-center gap-2 font-semibold tracking-tight">
-            <span className="grid size-8 place-items-center rounded bg-[#111] text-white">P</span>
+            <span className="grid size-8 place-items-center rounded bg-[#111] text-white">
+              <Activity size={17} />
+            </span>
             PrivPulse
           </Link>
           <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Customer app</p>

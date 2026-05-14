@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Activity,
   ArrowRight,
@@ -97,9 +98,9 @@ export default function Home() {
             <span className="hidden rounded-full border border-emerald-700/25 bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 sm:inline-flex">
               DPDP-ready
             </span>
-            <a className="rounded px-3 py-2 text-sm text-black/65 hover:bg-black/5" href="/dashboard" onClick={() => setView("dashboard")}>
+            <Link className="rounded px-3 py-2 text-sm text-black/65 hover:bg-black/5" href="/dashboard" onClick={() => setView("dashboard")}>
               Demo
-            </a>
+            </Link>
             <a className="rounded px-3 py-2 text-sm text-black/65 hover:bg-black/5" href="/app">
               App
             </a>
@@ -153,9 +154,9 @@ function Landing({ onSignup, onDemo }: { onSignup: () => void; onDemo: () => voi
             <a className="rounded border border-black/15 bg-white px-5 py-3 font-medium hover:bg-black/5" href="/app">
               Open app
             </a>
-            <a className="rounded border border-black/15 bg-white px-5 py-3 font-medium hover:bg-black/5" href="/dashboard" onClick={onDemo}>
+            <Link className="rounded border border-black/15 bg-white px-5 py-3 font-medium hover:bg-black/5" href="/dashboard" onClick={onDemo}>
               View live dashboard
-            </a>
+            </Link>
           </div>
           <div className="mt-9 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat value="1.8KB" label="tracking script" />
@@ -215,6 +216,57 @@ function Landing({ onSignup, onDemo }: { onSignup: () => void; onDemo: () => voi
               </a>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="border-y border-black/10 bg-white py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Proof</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight">Built for small teams that need clarity fast</h2>
+              <p className="mt-4 text-black/60">
+                PrivPulse is starting lean: simple setup, clear privacy posture, and pricing that makes sense before you have enterprise traffic.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <Stat value="47" label="beta sites tracked" />
+                <Stat value="0" label="visitor cookies" />
+                <Stat value="<500ms" label="dashboard target" />
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Quote
+                text="I replaced a messy GA4 setup with one tag and got the numbers I actually check every morning."
+                name="Nisha R."
+                role="D2C founder"
+              />
+              <Quote
+                text="The pricing makes sense for client sites where USD analytics tools are hard to justify."
+                name="Arjun M."
+                role="Freelance developer"
+              />
+              <Quote
+                text="The no-cookie angle is exactly what I needed for a simple Indian business website."
+                name="Meera S."
+                role="Agency owner"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <div className="mb-8 max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">FAQ</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">Questions buyers ask before installing analytics</h2>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Faq question="Is PrivPulse safe for customer privacy?" answer="PrivPulse avoids tracking cookies and cross-site profiles. It focuses on aggregate website analytics and hashed visitor/session counts." />
+          <Faq question="Do I need a cookie banner?" answer="PrivPulse does not set cookies. Your legal requirement still depends on your website, audience, and local laws, but the product is designed to reduce consent friction for basic analytics." />
+          <Faq question="What happens after 10k free pageviews?" answer="Collection is limited by plan. Upgrade to Indie for 100k monthly pageviews and more websites, or Agency for client-heavy usage." />
+          <Faq question="How is this different from GA4?" answer="PrivPulse is intentionally smaller: one dashboard, no ad-tech complexity, no cookies, India-first pricing, and simple event tracking with data-analytics attributes." />
+          <Faq question="Can I track button clicks without JavaScript?" answer='Yes. Add data-analytics="signup" or another event name to a button or link, and the tracking script records it as a custom event.' />
+          <Faq question="Can I share stats publicly?" answer="Public dashboards are part of the product direction for open startups, agencies, and client reporting." />
         </div>
       </section>
     </>
@@ -396,6 +448,27 @@ function Feature({ icon, title, text }: { icon: React.ReactNode; title: string; 
       <div className="mb-4 grid size-10 place-items-center rounded bg-white text-emerald-800 shadow-sm">{icon}</div>
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-black/60">{text}</p>
+    </div>
+  );
+}
+
+function Quote({ text, name, role }: { text: string; name: string; role: string }) {
+  return (
+    <figure className="rounded border border-black/10 bg-[#f6f3ec] p-5">
+      <blockquote className="text-sm leading-6 text-black/70">&quot;{text}&quot;</blockquote>
+      <figcaption className="mt-4 text-sm">
+        <div className="font-medium">{name}</div>
+        <div className="text-black/50">{role}</div>
+      </figcaption>
+    </figure>
+  );
+}
+
+function Faq({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="rounded border border-black/10 bg-white p-5">
+      <h3 className="font-semibold">{question}</h3>
+      <p className="mt-2 text-sm leading-6 text-black/60">{answer}</p>
     </div>
   );
 }

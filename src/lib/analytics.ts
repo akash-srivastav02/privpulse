@@ -317,7 +317,18 @@ function seedDemo() {
 
   const pages = ["/pricing", "/features", "/", "/blog/ga4-alternative", "/signup", "/docs"];
   const refs = ["google.com", "Direct", "twitter.com", "producthunt.com", "reddit.com"];
-  const countries = ["India", "United States", "United Kingdom", "Singapore", "Germany"];
+  const countries = [
+    "India",
+    "India",
+    "India",
+    "India",
+    "India",
+    "India",
+    "United States",
+    "United Kingdom",
+    "Singapore",
+    "Germany",
+  ];
   const devices = ["Mobile", "Desktop", "Tablet"];
   const eventNames = ["signup", "whatsapp_click", "pricing_cta", "demo_opened"];
 
@@ -325,6 +336,7 @@ function seedDemo() {
     const date = new Date();
     date.setDate(date.getDate() - Math.floor(Math.random() * 90));
     date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    const country = countries[Math.floor(Math.random() * countries.length)];
     mockEvents.push({
       id: randomUUID(),
       site_id: "pp_demo_india",
@@ -337,8 +349,8 @@ function seedDemo() {
       utm_source: null,
       utm_medium: null,
       utm_campaign: null,
-      country: countries[Math.floor(Math.random() * countries.length)],
-      country_name: countries[Math.floor(Math.random() * countries.length)],
+      country,
+      country_name: country,
       city: null,
       device: devices[Math.floor(Math.random() * devices.length)],
       browser: "Chrome",

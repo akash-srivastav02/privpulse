@@ -1,11 +1,29 @@
 import Link from "next/link";
 import { Activity, BarChart3, Copy, LayoutDashboard, Sparkles } from "lucide-react";
-import { getDashboard, trackingScript } from "@/lib/analytics";
+import { notFound, redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
+import { getDashboard, listSitesForOwner, trackingScript } from "@/lib/analytics";
 
-export default async function DashboardPage() {
-  const data = await getDashboard("pp_demo_india", "30d");
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ siteId?: string; range?: string }>;
+}) {
+  const params = await searchParams;
+  return <DashboardView siteId={params.siteId ?? "pp_demo_india"} range={params.range ?? "30d"} />;
+}
+
+export async function DashboardView({ siteId, range = "30d" }: { siteId: string; range?: string }) {
+  if (siteId !== "pp_demo_india") {
+    const user = await getSessionUser();
+    if (!user) redirect(`/login?next=/dashboard/${siteId}`);
+    const sites = await listSitesForOwner(user.email);
+    if (!sites.some((site) => site.id === siteId)) notFound();
+  }
+
+  const data = await getDashboard(siteId, range);
   const max = Math.max(...data.series.map((point) => point.pageviews), 1);
-  const script = trackingScript("pp_demo_india");
+  const script = trackingScript(siteId);
 
   return (
     <main className="min-h-screen bg-[#f6f3ec] text-[#191a17]">
@@ -48,7 +66,7 @@ export default async function DashboardPage() {
               </div>
               <div className="flex gap-2">
                 {["7d", "30d", "90d"].map((item) => (
-                  <span key={item} className={`rounded px-3 py-2 text-sm ${item === "30d" ? "bg-[#111] text-white" : "bg-[#f6f3ec] text-black/65"}`}>{item}</span>
+                  <Link key={item} href={siteId === "pp_demo_india" ? `/dashboard?range=${item}` : `/dashboard/${siteId}?range=${item}`} className={`rounded px-3 py-2 text-sm ${item === range ? "bg-[#111] text-white" : "bg-[#f6f3ec] text-black/65"}`}>{item}</Link>
                 ))}
               </div>
             </div>

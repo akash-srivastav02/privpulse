@@ -74,7 +74,7 @@ export default async function AppPage() {
                     <div className="mt-1 text-sm text-black/50">{site.domain}</div>
                   </div>
                   <pre className="overflow-auto rounded bg-[#111] p-3 text-xs leading-6 text-white">{trackingScript(site.id)}</pre>
-                  <a href={`/dashboard?siteId=${site.id}`} className="inline-flex items-center justify-center gap-2 rounded border border-black/10 px-3 py-2 text-sm font-medium hover:bg-black/5">
+                  <a href={`/dashboard/${site.id}`} className="inline-flex items-center justify-center gap-2 rounded border border-black/10 px-3 py-2 text-sm font-medium hover:bg-black/5">
                     Dashboard <ArrowUpRight size={15} />
                   </a>
                 </div>
