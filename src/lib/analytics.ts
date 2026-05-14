@@ -1,14 +1,17 @@
 import { randomUUID } from "crypto";
 import { appUrl, hasSupabase } from "./config";
 import { makeSessionHash, makeVisitorHash } from "./hash";
+import { getUserPlan } from "./billing";
+import { normalizePlan, planLimits, type Plan } from "./plans";
 import { getSupabaseAdmin } from "./supabase";
 
-type Site = {
+export type Site = {
   id: string;
   name: string;
   domain: string;
   owner_email: string;
   owner_name: string;
+  plan: Plan;
   public: boolean;
   created_at: string;
 };
@@ -65,6 +68,7 @@ export async function createSite(input: { name: string; email: string; domain: s
     domain: input.domain,
     owner_email: input.email,
     owner_name: input.name,
+    plan: "free",
     public: false,
     created_at: new Date().toISOString(),
   };
@@ -81,6 +85,33 @@ export async function createSite(input: { name: string; email: string; domain: s
     siteId: site.id,
     siteName: site.name,
     script: trackingScript(site.id),
+  };
+}
+
+export async function listSitesForOwner(email: string) {
+  if (!hasSupabase) {
+    return Array.from(mockSites.values()).filter((site) => site.owner_email === email);
+  }
+
+  const supabase = getSupabaseAdmin()!;
+  const { data, error } = await supabase
+    .from("sites")
+    .select("*")
+    .eq("owner_email", email)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return ((data as Site[]) ?? []).map((site) => ({ ...site, plan: normalizePlan(site.plan) }));
+}
+
+export async function canCreateSite(email: string) {
+  const plan = await getUserPlan(email);
+  const sites = await listSitesForOwner(email);
+  return {
+    allowed: sites.length < planLimits[plan].sites,
+    plan,
+    used: sites.length,
+    limit: planLimits[plan].sites,
   };
 }
 
@@ -133,12 +164,41 @@ export async function collectEvent(input: {
 
   if (hasSupabase) {
     const supabase = getSupabaseAdmin()!;
+    if (input.type === "pageview") {
+      const allowed = await canCollectPageview(input.siteId);
+      if (!allowed) return;
+    }
     const { error } = await supabase.from("events").insert(row);
     if (error) throw error;
   } else {
     mockEvents.push(row);
   }
 }
+
+async function canCollectPageview(siteId: string) {
+  const supabase = getSupabaseAdmin()!;
+  const { data: site } = await supabase.from("sites").select("owner_email, plan").eq("id", siteId).maybeSingle();
+  if (!site) return false;
+
+  const ownerPlan = site.owner_email ? await getUserPlan(String(site.owner_email)) : normalizePlan(site.plan as string);
+  const sitePlan = normalizePlan(site.plan as string);
+  const plan = planRank[ownerPlan] >= planRank[sitePlan] ? ownerPlan : sitePlan;
+  const month = new Date().toISOString().slice(0, 7);
+  const { data: count } = await supabase
+    .from("monthly_counts")
+    .select("pageviews")
+    .eq("site_id", siteId)
+    .eq("year_month", month)
+    .maybeSingle();
+
+  return Number(count?.pageviews ?? 0) < planLimits[plan].pageviews;
+}
+
+const planRank: Record<Plan, number> = {
+  free: 0,
+  indie: 1,
+  agency: 2,
+};
 
 export async function getDashboard(siteId: string, range: string) {
   seedDemo();
@@ -250,6 +310,7 @@ function seedDemo() {
     domain: "https://mystore.in",
     owner_email: "founder@mystore.in",
     owner_name: "Demo Founder",
+    plan: "free",
     public: true,
     created_at: new Date().toISOString(),
   });

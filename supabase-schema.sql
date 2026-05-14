@@ -32,6 +32,35 @@ create table if not exists events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists user_accounts (
+  email text primary key,
+  name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists login_codes (
+  id uuid primary key,
+  email text not null,
+  code text not null,
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists subscriptions (
+  email text primary key,
+  plan text not null default 'free',
+  status text not null default 'active',
+  lemon_customer_id text,
+  lemon_subscription_id text,
+  lemon_product_id text,
+  lemon_variant_id text,
+  renews_at timestamptz,
+  ends_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists plan_limits (
   plan text primary key,
   max_sites int not null,
@@ -53,6 +82,9 @@ create table if not exists monthly_counts (
 );
 
 create index if not exists events_site_created_idx on events (site_id, created_at desc);
+create index if not exists sites_owner_email_idx on sites (owner_email);
+create index if not exists login_codes_email_idx on login_codes (email, created_at desc);
+create index if not exists subscriptions_status_idx on subscriptions (status);
 create index if not exists events_site_type_idx on events (site_id, type);
 create index if not exists events_visitor_idx on events (site_id, visitor_hash);
 create index if not exists events_session_idx on events (site_id, session_hash);
@@ -91,6 +123,9 @@ group by site_id, day;
 alter table sites enable row level security;
 alter table events enable row level security;
 alter table monthly_counts enable row level security;
+alter table user_accounts enable row level security;
+alter table login_codes enable row level security;
+alter table subscriptions enable row level security;
 
 -- The MVP uses the server-side Supabase service role key from Next.js API routes.
 -- Add Supabase Auth policies when account login is connected.

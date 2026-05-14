@@ -100,6 +100,9 @@ export default function Home() {
             <a className="rounded px-3 py-2 text-sm text-black/65 hover:bg-black/5" href="/dashboard" onClick={() => setView("dashboard")}>
               Demo
             </a>
+            <a className="rounded px-3 py-2 text-sm text-black/65 hover:bg-black/5" href="/app">
+              App
+            </a>
             <a className="rounded bg-[#111] px-4 py-2 text-sm font-medium text-white hover:bg-black/80" href="/signup" onClick={() => setView("signup")}>
               Start free
             </a>
@@ -145,6 +148,9 @@ function Landing({ onSignup, onDemo }: { onSignup: () => void; onDemo: () => voi
           <div className="mt-8 flex flex-wrap gap-3">
             <a className="inline-flex items-center gap-2 rounded bg-[#111] px-5 py-3 font-medium text-white hover:bg-black/80" href="/signup" onClick={onSignup}>
               Create free account <ArrowRight size={17} />
+            </a>
+            <a className="rounded border border-black/15 bg-white px-5 py-3 font-medium hover:bg-black/5" href="/app">
+              Open app
             </a>
             <a className="rounded border border-black/15 bg-white px-5 py-3 font-medium hover:bg-black/5" href="/dashboard" onClick={onDemo}>
               View live dashboard
