@@ -89,7 +89,7 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Metric label="Visitors" value={data.metrics.visitors.toLocaleString()} note={hasTraffic ? "tracked" : "waiting"} />
               <Metric label="Pageviews" value={data.metrics.pageviews.toLocaleString()} note={hasTraffic ? "tracked" : "waiting"} />
-              <Metric label="Events" value={data.metrics.events.toLocaleString()} note="tracked" />
+              <Metric label="Events" value={data.metrics.events.toLocaleString()} note={hasTraffic ? "tracked" : "waiting"} />
               <Metric label="Bounce rate" value={hasTraffic ? `${data.metrics.bounceRate}%` : "-"} note={hasTraffic ? "estimated" : "waiting"} />
             </div>
 
@@ -117,8 +117,12 @@ export async function DashboardView({ siteId, range = "30d" }: { siteId: string;
               <Table title="Devices" rows={data.devices} />
               <Table title="Custom events" rows={data.events} />
               <div className="rounded border border-black/10 bg-[#111] p-5 text-white">
-                <div className="flex items-center gap-2 font-medium"><Sparkles size={18} /> Monday digest preview</div>
-                <p className="mt-4 text-sm leading-7 text-white/70">Traffic is up 12%. Your pricing page is the top converter. Google is sending the most visitors. WhatsApp CTA clicks increased this week.</p>
+                <div className="flex items-center gap-2 font-medium"><Sparkles size={18} /> Monday digest</div>
+                <p className="mt-4 text-sm leading-7 text-white/70">
+                  {hasTraffic || isDemo
+                    ? "Traffic is up 12%. Your pricing page is the top converter. Google is sending the most visitors. WhatsApp CTA clicks increased this week."
+                    : "Your weekly digest will start after PrivPulse receives traffic from this website."}
+                </p>
               </div>
             </div>
           </div>

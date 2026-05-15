@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Activity, ArrowUpRight, BarChart3, CreditCard, Globe2, LogOut } from "lucide-react";
+import { Activity, ArrowUpRight, BarChart3, CheckCircle2, Code2, CreditCard, Globe2, LogOut } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { getSubscription, getUserPlan } from "@/lib/billing";
 import { listSitesForOwner, trackingScript } from "@/lib/analytics";
 import { planLimits } from "@/lib/plans";
 import NewSiteForm from "./new-site-form";
+import CopyScriptButton from "../dashboard/copy-script-button";
+import VerifySiteButton from "./verify-site-button";
 
 export const dynamic = "force-dynamic";
 
@@ -61,29 +63,60 @@ export default async function AppPage() {
 
         <NewSiteForm disabled={reachedSiteLimit} />
 
+        <div className="mt-5 grid gap-3 lg:grid-cols-3">
+          <SetupStep done={sites.length > 0} title="Create a site" text="Add the website you want to track." />
+          <SetupStep done={false} title="Install script" text="Paste the script in your live site head or app shell." />
+          <SetupStep done={false} title="Verify and open site" text="Use Verify install, then visit your site once." />
+        </div>
+
         <div className="mt-5 rounded border border-black/10 bg-white">
           <div className="border-b border-black/10 px-5 py-4 font-medium">Sites</div>
           <div className="divide-y divide-black/10">
             {sites.length === 0 ? (
               <div className="px-5 py-10 text-center text-black/55">Add your first website to get the tracking script.</div>
             ) : (
-              sites.map((site) => (
-                <div key={site.id} className="grid gap-4 px-5 py-4 lg:grid-cols-[1fr_1.3fr_auto] lg:items-center">
+              sites.map((site) => {
+                const script = trackingScript(site.id);
+                return (
+                <div key={site.id} className="grid gap-4 px-5 py-4 xl:grid-cols-[0.8fr_1.25fr_160px] xl:items-start">
                   <div>
                     <div className="font-medium">{site.name}</div>
                     <div className="mt-1 text-sm text-black/50">{site.domain}</div>
+                    <div className="mt-3 inline-flex items-center gap-2 rounded bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800">
+                      <Code2 size={13} /> Verify install before launch
+                    </div>
                   </div>
-                  <pre className="overflow-auto rounded bg-[#111] p-3 text-xs leading-6 text-white">{trackingScript(site.id)}</pre>
-                  <a href={`/dashboard/${site.id}`} className="inline-flex items-center justify-center gap-2 rounded border border-black/10 px-3 py-2 text-sm font-medium hover:bg-black/5">
-                    Dashboard <ArrowUpRight size={15} />
-                  </a>
+                  <div className="min-w-0 rounded bg-[#f6f3ec] p-3">
+                    <div className="mb-2 flex items-center gap-2 text-sm font-medium"><Code2 size={15} /> Install script</div>
+                    <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-all rounded bg-white p-3 text-xs leading-5 text-black/65">{script}</pre>
+                    <CopyScriptButton script={script} />
+                  </div>
+                  <div className="grid gap-2">
+                    <VerifySiteButton siteId={site.id} />
+                    <a href={`/dashboard/${site.id}`} className="inline-flex items-center justify-center gap-2 rounded bg-[#111] px-3 py-2 text-sm font-medium text-white hover:bg-black/80">
+                      Dashboard <ArrowUpRight size={15} />
+                    </a>
+                  </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
       </section>
     </main>
+  );
+}
+
+function SetupStep({ done, title, text }: { done: boolean; title: string; text: string }) {
+  return (
+    <div className="rounded border border-black/10 bg-white p-4">
+      <div className="flex items-center gap-2 font-medium">
+        <CheckCircle2 size={17} className={done ? "text-emerald-700" : "text-black/25"} />
+        {title}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-black/55">{text}</p>
+    </div>
   );
 }
 
