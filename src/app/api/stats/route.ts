@@ -13,12 +13,14 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const siteKey = searchParams.get('siteKey')
   const range = searchParams.get('range') ?? '30d'
+  const publicOnly = searchParams.get('public') === '1'
   const interval = INTERVALS[range] ?? '30 days'
   if (!siteKey) return NextResponse.json({error:'siteKey required'},{status:400})
 
   const supabase = createServiceClient()
   const { data: site } = await supabase.from('sites').select('id,name,domain,public_stats').eq('site_key', siteKey).maybeSingle()
   if (!site) return NextResponse.json({error:'Not found'},{status:404})
+  if (publicOnly && !site.public_stats) return NextResponse.json({error:'This dashboard is private.'},{status:403})
 
   const since = new Date(Date.now() - parseInt(interval)*24*60*60*1000/1).toISOString()
   const since5m = new Date(Date.now() - 5*60*1000).toISOString()

@@ -48,11 +48,29 @@ function TableCard({title,rows,col1,col2}:{title:string;rows:any[];col1:string;c
   )
 }
 
-export default function StatsView({site,stats,loading,range,onRangeChange}:{
-  site:Site; stats:any; loading:boolean; range:string; onRangeChange:(r:any)=>void
+export default function StatsView({site,stats,loading,range,onRangeChange,onSiteUpdate}:{
+  site:Site; stats:any; loading:boolean; range:string; onRangeChange:(r:any)=>void; onSiteUpdate:(site:Site)=>void
 }) {
   const s = stats?.summary
   const fmtDur = (sec:number) => sec<60?`${sec}s`:`${Math.floor(sec/60)}m ${sec%60}s`
+  const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://privpulse.vercel.app'
+  const script = `<script async src="${appUrl}/p.js" data-site="${site.site_key}"></script>`
+  const shareUrl = `${appUrl}/share?key=${site.site_key}`
+
+  async function copy(text: string) {
+    await navigator.clipboard?.writeText(text)
+  }
+
+  async function togglePublic() {
+    const res = await fetch('/api/sites', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: site.id, public_stats: !site.public_stats })
+    })
+    const data = await res.json()
+    if (res.ok) onSiteUpdate(data)
+    else alert(data.error || 'Could not update sharing.')
+  }
 
   return (
     <div>
@@ -65,7 +83,27 @@ export default function StatsView({site,stats,loading,range,onRangeChange}:{
             Live · {stats?.liveCount??0} visitors now
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {site.plan === 'free' && (
+            <a href={`/api/billing/checkout?plan=indie&siteId=${site.id}`}
+              className="px-3 py-1 rounded-lg text-xs font-mono bg-[#6c63ff] text-white hover:bg-[#7c74ff] transition-colors">
+              Upgrade
+            </a>
+          )}
+          <button onClick={()=>copy(script)}
+            className="px-3 py-1 rounded-lg text-xs font-mono border border-white/10 text-white/50 hover:text-white transition-colors">
+            Copy script
+          </button>
+          <button onClick={togglePublic}
+            className={`px-3 py-1 rounded-lg text-xs font-mono border transition-colors ${site.public_stats?'bg-[#4ecca3]/10 border-[#4ecca3]/20 text-[#4ecca3]':'border-white/10 text-white/40 hover:text-white'}`}>
+            {site.public_stats ? 'Public on' : 'Make public'}
+          </button>
+          {site.public_stats && (
+            <button onClick={()=>copy(shareUrl)}
+              className="px-3 py-1 rounded-lg text-xs font-mono border border-white/10 text-white/50 hover:text-white transition-colors">
+              Copy share link
+            </button>
+          )}
           {(['7d','30d','90d','12m'] as const).map(r=>(
             <button key={r} onClick={()=>onRangeChange(r)}
               className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors ${range===r?'bg-[#6c63ff] text-white':'border border-white/10 text-white/40 hover:text-white'}`}>
@@ -122,11 +160,14 @@ export default function StatsView({site,stats,loading,range,onRangeChange}:{
         <div className="text-[12px] font-mono text-white/30 uppercase tracking-wide mb-3">Your tracking script</div>
         <div className="bg-[#16161f] rounded-lg p-3 font-mono text-[11px] leading-loose text-white/70">
           <span className="text-[#6c63ff]">&lt;script</span> <span className="text-[#4ecca3]">async</span><br/>
-          &nbsp;&nbsp;<span className="text-[#4ecca3]">src</span>=<span className="text-[#4ecca3]">&quot;{typeof window!=='undefined'?window.location.origin:'https://privpulse.in'}/p.js&quot;</span><br/>
+          &nbsp;&nbsp;<span className="text-[#4ecca3]">src</span>=<span className="text-[#4ecca3]">&quot;{appUrl}/p.js&quot;</span><br/>
           &nbsp;&nbsp;<span className="text-[#4ecca3]">data-site</span>=<span className="text-[#4ecca3]">&quot;{site.site_key}&quot;</span><br/>
           <span className="text-[#6c63ff]">&gt;&lt;/script&gt;</span>
         </div>
-        <p className="text-xs text-white/25 mt-2">Paste this before &lt;/head&gt; on every page you want to track.</p>
+        <div className="flex items-center justify-between gap-3 mt-2 flex-wrap">
+          <p className="text-xs text-white/25">Paste this before &lt;/head&gt; on every page you want to track.</p>
+          {site.public_stats && <a className="text-xs text-[#6c63ff] hover:underline" href={shareUrl} target="_blank">Open public dashboard</a>}
+        </div>
       </div>
     </div>
   )

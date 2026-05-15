@@ -8,32 +8,35 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [website, setWebsite] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
+  const router = useRouter()
   const supabase = createClient()
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true); setError('')
-    const { error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { name }, emailRedirectTo: `${location.origin}/dashboard` }
+    const signup = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name, website })
     })
-    if (error) { setError(error.message); setLoading(false) }
-    else setDone(true)
-  }
+    const payload = await signup.json()
+    if (!signup.ok) {
+      setError(payload.error || 'Could not create account.')
+      setLoading(false)
+      return
+    }
 
-  if (done) return (
-    <main className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
-      <div className="text-center max-w-sm">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="font-display text-2xl font-bold text-white mb-2">Check your email</h2>
-        <p className="text-sm text-white/40">We sent a confirmation to <strong className="text-white/70">{email}</strong>. Click the link to activate your account.</p>
-        <Link href="/login" className="inline-block mt-6 text-[#6c63ff] text-sm hover:underline">Back to login →</Link>
-      </div>
-    </main>
-  )
+    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+    if (loginError) {
+      setError(loginError.message)
+      setLoading(false)
+      return
+    }
+    router.push('/dashboard')
+  }
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
@@ -66,11 +69,17 @@ export default function SignupPage() {
               className="w-full bg-[#16161f] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#6c63ff] transition-colors"
               placeholder="min 8 characters"/>
           </div>
+          <div>
+            <label className="block text-xs text-white/50 mb-1.5">Website URL</label>
+            <input type="text" value={website} onChange={e=>setWebsite(e.target.value)}
+              className="w-full bg-[#16161f] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#6c63ff] transition-colors"
+              placeholder="https://formfixer.in"/>
+          </div>
           <button type="submit" disabled={loading}
             className="w-full py-3 bg-[#6c63ff] text-white rounded-lg text-sm font-medium hover:bg-[#7c74ff] disabled:opacity-50 transition-colors">
-            {loading ? 'Creating account...' : 'Create free account →'}
+            {loading ? 'Creating account...' : 'Create account & open dashboard →'}
           </button>
-          <p className="text-[11px] text-white/25 text-center">No credit card. No cookies. No irony.</p>
+          <p className="text-[11px] text-white/25 text-center">No email code needed. You can install the script right after signup.</p>
         </form>
         <p className="text-center text-xs text-white/30 mt-4">
           Already have an account? <Link href="/login" className="text-[#6c63ff] hover:underline">Sign in</Link>

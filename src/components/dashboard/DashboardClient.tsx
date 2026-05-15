@@ -48,6 +48,11 @@ export default function DashboardClient({ user, initialSites }: { user:User; ini
     return error?.message
   }
 
+  async function handleSiteUpdate(updated: Site) {
+    setSites(prev => prev.map(site => site.id === updated.id ? updated : site))
+    setActiveSite(updated)
+  }
+
   if (sites.length === 0) return (
     <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col">
       <TopBar user={user} onLogout={handleLogout} />
@@ -96,7 +101,14 @@ export default function DashboardClient({ user, initialSites }: { user:User; ini
         {/* Main */}
         <main className="flex-1 overflow-y-auto p-6">
           {activeSite && (
-            <StatsView site={activeSite} stats={stats} loading={loadingStats} range={range} onRangeChange={setRange} />
+            <StatsView
+              site={activeSite}
+              stats={stats}
+              loading={loadingStats}
+              range={range}
+              onRangeChange={setRange}
+              onSiteUpdate={handleSiteUpdate}
+            />
           )}
         </main>
       </div>
