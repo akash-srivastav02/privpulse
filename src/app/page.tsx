@@ -34,7 +34,7 @@ const features = [
   {
     icon: '🇮🇳',
     title: 'Built for India',
-    desc: 'Priced in Rs. DPDP-ready. 4x cheaper than Plausible. Free tier - no card.',
+    desc: 'Priced in ₹. DPDP-ready. 4x cheaper than Plausible. Free tier - no card.',
     bg: 'rgba(255,179,71,0.1)'
   }
 ]
@@ -43,7 +43,7 @@ const plans = [
   {
     name: 'Starter',
     sub: 'Blogs & hobby projects',
-    price: 'Rs 0',
+    price: '₹0',
     period: '/mo forever',
     feats: ['1 website', '10,000 pageviews/mo', '3 months data retention', 'Public shareable dashboard'],
     cta: 'Get started free',
@@ -52,7 +52,7 @@ const plans = [
   {
     name: 'Indie',
     sub: 'Founders & freelancers',
-    price: 'Rs 199',
+    price: '₹199',
     period: '/mo',
     feats: ['3 websites', '100,000 pageviews/mo', '12 months data', 'Custom event tracking', 'Weekly email digest', 'No "powered by" branding'],
     cta: 'Start 14-day trial',
@@ -61,7 +61,7 @@ const plans = [
   {
     name: 'Pro',
     sub: 'Agencies & teams',
-    price: 'Rs 599',
+    price: '₹599',
     period: '/mo',
     feats: ['20 websites', '1M pageviews/mo', '24 months data', 'Team access', 'White-label option', 'Priority support'],
     cta: 'Contact us',
@@ -206,14 +206,14 @@ export default function Home() {
         <h1>Analytics that <span className="pp-grad">respects</span><br />your users</h1>
         <p className="pp-hero-sub">Replace Google Analytics with a clean, privacy-first dashboard. GDPR + India DPDP compliant. One script tag. Under 2KB.</p>
         <div className="pp-hero-actions">
-          <Link className="pp-btn primary" href="/signup">Start free - Rs 0/month →</Link>
+          <Link className="pp-btn primary" href="/signup">Start free - ₹0/month →</Link>
           <a className="pp-btn secondary" href="#demo">See live demo</a>
         </div>
         <div className="pp-stats-row">
           <div className="pp-stat"><div className="pp-stat-val">1.8KB</div><div className="pp-stat-label">Script size</div></div>
           <div className="pp-stat"><div className="pp-stat-val">&lt;500ms</div><div className="pp-stat-label">Dashboard</div></div>
           <div className="pp-stat"><div className="pp-stat-val">0</div><div className="pp-stat-label">Cookies</div></div>
-          <div className="pp-stat"><div className="pp-stat-val">Rs 199</div><div className="pp-stat-label">Paid plan/mo</div></div>
+          <div className="pp-stat"><div className="pp-stat-val">₹199</div><div className="pp-stat-label">Paid plan/mo</div></div>
         </div>
       </section>
 
@@ -245,7 +245,7 @@ export default function Home() {
       </section>
 
       <section className="pp-section-wrap">
-        <div className="pp-section-label">Simple pricing in Rs</div>
+        <div className="pp-section-label">Simple pricing in ₹</div>
         <div className="pp-price-grid">
           {plans.map(plan => (
             <div className={`pp-plan ${plan.hot ? 'hot' : ''}`} key={plan.name}>
@@ -262,7 +262,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <p className="pp-compare">Plausible: $9/mo (~Rs 750) &nbsp;·&nbsp; Fathom: $14/mo (~Rs 1,170) &nbsp;·&nbsp; No card for free plan</p>
+        <p className="pp-compare">Plausible: $9/mo (~₹750) &nbsp;·&nbsp; Fathom: $14/mo (~₹1,170) &nbsp;·&nbsp; No card for free plan</p>
       </section>
 
       <DemoDashboard />
