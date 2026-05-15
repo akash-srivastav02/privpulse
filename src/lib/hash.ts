@@ -1,17 +1,9 @@
-import { createHash } from "crypto";
-
-const salt = process.env.VISITOR_HASH_SALT ?? process.env.HASH_SALT ?? "dev-salt-change-before-production";
-
-export function makeVisitorHash(siteId: string, ip: string, userAgent: string) {
-  const day = new Date().toISOString().slice(0, 10);
-  return sha256(`${siteId}|${ip}|${userAgent}|${day}|${salt}`);
+const SALT = process.env.HASH_SALT || 'dev-salt-change-in-prod'
+async function sha256(s: string) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('')
 }
-
-export function makeSessionHash(siteId: string, ip: string, userAgent: string) {
-  const hour = new Date().toISOString().slice(0, 13);
-  return sha256(`${siteId}|${ip}|${userAgent}|${hour}|${salt}`);
-}
-
-function sha256(value: string) {
-  return createHash("sha256").update(value).digest("hex");
-}
+export const makeVisitorHash = (ip:string,ua:string,siteId:string) =>
+  sha256(`${ip}|${ua}|${siteId}|${SALT}|${new Date().toISOString().slice(0,10)}`)
+export const makeSessionHash = (ip:string,ua:string,siteId:string) =>
+  sha256(`${ip}|${ua}|${siteId}|${SALT}|${new Date().toISOString().slice(0,13)}`)

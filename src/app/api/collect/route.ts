@@ -1,102 +1,72 @@
-import { NextResponse } from "next/server";
-import { collectEvent } from "@/lib/analytics";
-import { getIp, parseRequest } from "@/lib/parse-request";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { NextRequest, NextResponse } from 'next/server'
+import { createServiceClient } from '@/lib/supabase-server'
+import { parseRequest, getIp } from '@/lib/parse-request'
+import { makeVisitorHash, makeSessionHash } from '@/lib/hash'
+import { isRateLimited } from '@/lib/rate-limit'
+import { isOverLimit } from '@/lib/plans'
 
-const botPattern = /bot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|playwright|curl|wget|python-requests/i;
+const BOT = /bot|crawler|spider|headless|phantom|selenium|puppeteer|curl|wget|python-requests/i
+const ok = () => new NextResponse(null, { status:200, headers:{'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'} })
 
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders(),
-  });
-}
+export async function OPTIONS() { return ok() }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const userAgent = request.headers.get("user-agent") ?? "";
-    if (botPattern.test(userAgent)) return cors();
+    const ua = request.headers.get('user-agent') || ''
+    if (BOT.test(ua)) return ok()
 
-    const ip = getIp(request);
-    const limit = await checkRateLimit(ip);
+    const ip = getIp(request)
+    if (await isRateLimited(ip)) return ok()
 
-    if (!limit.success) {
-      return cors();
+    let body: any
+    try { body = await request.json() } catch { return ok() }
+
+    const { type='pageview', siteKey, url, referrer, utmSource, utmMedium, utmCampaign, eventName, props } = body
+    if (!siteKey || !url) return ok()
+
+    const supabase = createServiceClient()
+    const { data: site } = await supabase.from('sites').select('id,plan,domain').eq('site_key', siteKey).maybeSingle()
+    if (!site) return ok()
+
+    if (await isOverLimit(site.id, site.plan, supabase)) return ok()
+
+    const parsed = parseRequest(request)
+    let pathname = '/'
+    try { pathname = new URL(url).pathname } catch {}
+
+    let referrerHost = parsed.referrerHost
+    if (referrer) {
+      try {
+        const rh = new URL(referrer).hostname.replace(/^www\./, '')
+        referrerHost = rh.includes(site.domain) ? null : rh
+      } catch {}
     }
 
-    let body: Record<string, unknown>;
-    try {
-      body = await request.json();
-    } catch {
-      return cors();
+    const [visitorHash, sessionHash] = await Promise.all([
+      makeVisitorHash(ip, ua, site.id),
+      makeSessionHash(ip, ua, site.id)
+    ])
+
+    if (type === 'event' && eventName) {
+      await supabase.from('events').insert({
+        site_id: site.id, name: String(eventName).slice(0,64),
+        url: String(url).slice(0,2048), pathname,
+        visitor_hash: visitorHash, props: props ?? null
+      })
+    } else {
+      await supabase.from('pageviews').insert({
+        site_id: site.id, url: String(url).slice(0,2048), pathname,
+        referrer: referrer ? String(referrer).slice(0,2048) : null,
+        referrer_host: referrerHost,
+        utm_source: utmSource||null, utm_medium: utmMedium||null, utm_campaign: utmCampaign||null,
+        visitor_hash: visitorHash, session_hash: sessionHash,
+        country: parsed.country, country_name: parsed.countryName, city: parsed.city,
+        device_type: parsed.deviceType, browser: parsed.browser, os: parsed.os
+      })
     }
-
-    const siteId = String(body.siteId ?? body.siteKey ?? "");
-    const type = body.type === "custom" || body.type === "event" ? "custom" : "pageview";
-    const rawUrl = String(body.url ?? body.path ?? "/");
-    const parsedUrl = parseUrl(rawUrl);
-
-    if (!siteId) return cors();
-
-    const parsed = parseRequest(request);
-
-    await collectEvent({
-      siteId,
-      type,
-      eventName: body.eventName ? String(body.eventName).slice(0, 80) : undefined,
-      path: parsedUrl.pathname.slice(0, 240),
-      url: rawUrl.slice(0, 2048),
-      title: body.title ? String(body.title).slice(0, 160) : undefined,
-      referrer: body.referrer ? String(body.referrer).slice(0, 240) : undefined,
-      userAgent,
-      ip,
-      country: parsed.country,
-      countryName: parsed.countryName,
-      city: parsed.city,
-      device: parsed.device,
-      browser: parsed.browser,
-      os: parsed.os,
-      utmSource: stringOrNull(body.utmSource),
-      utmMedium: stringOrNull(body.utmMedium),
-      utmCampaign: stringOrNull(body.utmCampaign),
-      props: isRecord(body.props) ? body.props : null,
-    });
-
-    return cors();
-  } catch (error) {
-    console.error(error);
-    return cors();
+    return ok()
+  } catch (err) {
+    console.error('[collect]', err)
+    return ok()
   }
-}
-
-function cors(body: unknown = null, status = 200) {
-  return NextResponse.json(body, {
-    status,
-    headers: corsHeaders(),
-  });
-}
-
-function parseUrl(value: string) {
-  try {
-    return new URL(value);
-  } catch {
-    return new URL(value.startsWith("/") ? `https://site.local${value}` : `https://site.local/${value}`);
-  }
-}
-
-function stringOrNull(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function corsHeaders() {
-  return {
-    "access-control-allow-origin": "*",
-    "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
-    "cache-control": "no-store",
-  };
 }

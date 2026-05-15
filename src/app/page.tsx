@@ -1,283 +1,125 @@
-"use client";
-
-import { FormEvent, useEffect, useState } from "react";
-
-type SignupResponse = {
-  siteId: string;
-  siteName: string;
-  script: string;
-};
-
-type DashboardResponse = {
-  site: { id: string; name: string; domain: string; public: boolean };
-  realtime: number;
-  metrics: { visitors: number; pageviews: number; events: number; bounceRate: number };
-  series: { label: string; pageviews: number }[];
-  topPages: { label: string; value: number }[];
-  referrers: { label: string; value: number }[];
-  countries: { label: string; value: number }[];
-  devices: { label: string; value: number }[];
-};
-
-const demoSiteId = "pp_demo_india";
+import Link from 'next/link'
 
 export default function Home() {
-  const [view, setView] = useState<"landing" | "dashboard" | "signup">("landing");
-  const [signup, setSignup] = useState<SignupResponse | null>(null);
-  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
-  const [range, setRange] = useState("30d");
-
-  useEffect(() => {
-    if (view !== "dashboard") return;
-    fetch(`/api/dashboard?siteId=${signup?.siteId ?? demoSiteId}&range=${range}`)
-      .then((res) => res.json())
-      .then(setDashboard)
-      .catch(() => setDashboard(null));
-  }, [view, range, signup?.siteId]);
-
   return (
-    <main className="pp-exact">
-      <nav className="ppx-nav">
-        <button className="ppx-logo" onClick={() => setView("landing")}>
-          <span className="ppx-logo-dot" />
-          <span className="ppx-logo-text">Priv<span>Pulse</span></span>
-        </button>
-        <div className="ppx-nav-links">
-          <span className="ppx-badge">DPDP ready</span>
-          <button className="ppx-nav-btn ghost" onClick={() => setView("landing")}>Home</button>
-          <button className="ppx-nav-btn ghost" onClick={() => setView("dashboard")}>Live demo</button>
-          <a className="ppx-nav-btn ghost" href="/app">App</a>
-          <button className="ppx-nav-btn primary" onClick={() => setView("signup")}>Start free {">"}</button>
+    <main className="min-h-screen bg-[#0a0a0f] text-[#f0f0f8]">
+      {/* NAV */}
+      <nav className="flex items-center justify-between px-7 py-4 border-b border-white/5 sticky top-0 bg-[#0a0a0f]/90 backdrop-blur z-50">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#4ecca3] shadow-[0_0_10px_#4ecca3]"/>
+          <span className="font-display font-bold text-base">Priv<span className="text-[#4ecca3]">Pulse</span></span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono bg-[#4ecca3]/10 text-[#4ecca3] border border-[#4ecca3]/20 px-2 py-1 rounded-full">DPDP ready</span>
+          <Link href="/login" className="px-3 py-1.5 text-[13px] text-white/50 hover:text-white transition-colors">Login</Link>
+          <Link href="/signup" className="px-4 py-1.5 text-[13px] bg-[#6c63ff] text-white rounded-lg hover:bg-[#7c74ff] transition-colors">Start free →</Link>
         </div>
       </nav>
 
-      {view === "landing" && <Landing onSignup={() => setView("signup")} onDemo={() => setView("dashboard")} />}
-      {view === "signup" && <Signup created={signup} onCreated={setSignup} />}
-      {view === "dashboard" && <DemoDashboard data={dashboard} range={range} setRange={setRange} />}
-    </main>
-  );
-}
-
-function Landing({ onSignup, onDemo }: { onSignup: () => void; onDemo: () => void }) {
-  return (
-    <>
-      <section className="ppx-hero">
-        <div className="ppx-eyebrow">No cookies. No banners. No BS.</div>
-        <h1>Analytics that <span className="ppx-grad">respects</span><br />your users</h1>
-        <p className="ppx-hero-sub">Replace Google Analytics with a clean, privacy-first dashboard. GDPR + India DPDP compliant. One script tag. Under 2KB.</p>
-        <div className="ppx-hero-actions">
-          <button className="ppx-btn primary" onClick={onSignup}>Start free - Rs.0/month {">"}</button>
-          <button className="ppx-btn secondary" onClick={onDemo}>See live demo</button>
+      {/* HERO */}
+      <section className="max-w-3xl mx-auto text-center px-6 pt-24 pb-16">
+        <div className="inline-flex items-center gap-2 bg-[#6c63ff]/10 border border-[#6c63ff]/20 text-[#6c63ff] text-xs font-mono px-3 py-1.5 rounded-full mb-8">
+          ⚡ No cookies. No banners. No BS.
         </div>
-        <div className="ppx-stats-row">
-          <Stat value="1.8KB" label="Script size" />
-          <Stat value="<500ms" label="Dashboard" />
-          <Stat value="0" label="Cookies" />
-          <Stat value="Rs.199" label="Paid plan/mo" />
+        <h1 className="font-display text-5xl md:text-7xl font-extrabold leading-[1.04] tracking-[-3px] mb-5">
+          Analytics that{' '}
+          <span className="bg-gradient-to-r from-[#6c63ff] to-[#4ecca3] bg-clip-text text-transparent">respects</span>
+          <br/>your users
+        </h1>
+        <p className="text-lg text-white/40 leading-relaxed max-w-lg mx-auto mb-10 font-light">
+          Replace Google Analytics. Privacy-first, GDPR + India DPDP compliant. One script tag. Under 2KB.
+        </p>
+        <div className="flex gap-3 justify-center flex-wrap mb-16">
+          <Link href="/signup" className="px-7 py-3 bg-[#6c63ff] text-white rounded-xl font-medium hover:bg-[#7c74ff] hover:-translate-y-px transition-all">
+            Start free — ₹0/month →
+          </Link>
+          <Link href="/dashboard" className="px-7 py-3 bg-white/5 text-white rounded-xl font-medium border border-white/10 hover:bg-white/8 transition-all">
+            View demo dashboard
+          </Link>
         </div>
-      </section>
-
-      <section className="ppx-section">
-        <div className="ppx-section-label">Why PrivPulse</div>
-        <div className="ppx-feat-grid">
-          <Feature icon="lock" tint="green" title="No cookie banner" text="Tracks via privacy-preserving hashing. GDPR + DPDP 2023 aligned with zero user prompts." />
-          <Feature icon="bolt" tint="purple" title="One-line setup" text="One script tag. Dashboard populates instantly. No config, no API keys." />
-          <Feature icon="chart" tint="green" title="Everything on one screen" text="Visitors, pages, referrers, countries, devices - all visible at a glance." />
-          <Feature icon="mail" tint="amber" title="Monday email digest" text="Weekly traffic summary in your inbox. Know your numbers without logging in." />
-          <Feature icon="target" tint="purple" title="Codeless event tracking" text='Add data-pp="signup" to any button. We track it automatically. No JS.' />
-          <Feature icon="IN" tint="amber" title="Built for India" text="Priced in Rs. DPDP-ready. 4x cheaper than Plausible. Free tier - no card." />
-        </div>
-      </section>
-
-      <section className="ppx-section">
-        <div className="ppx-section-label">Install in 10 seconds</div>
-        <div className="ppx-code">
-          <span className="cm">&lt;!-- Paste before &lt;/head&gt; --&gt;</span><br />
-          <span className="kw">&lt;script</span> <span className="str">async</span><br />
-          &nbsp;&nbsp;<span className="str">src</span>=<span className="str">&quot;https://privpulse.vercel.app/p.js&quot;</span><br />
-          &nbsp;&nbsp;<span className="str">data-site</span>=<span className="str">&quot;YOUR-SITE-ID&quot;</span><br />
-          <span className="kw">&gt;&lt;/script&gt;</span><br /><br />
-          <span className="cm">{"// Custom events - no JS needed:"}</span><br />
-          <span className="kw">&lt;button</span> <span className="str">data-pp</span>=<span className="str">&quot;signup&quot;</span><span className="kw">&gt;</span>Sign up<span className="kw">&lt;/button&gt;</span>
-        </div>
-      </section>
-
-      <section className="ppx-section">
-        <div className="ppx-section-label">Simple pricing in Rs.</div>
-        <div className="ppx-price-grid">
-          <Plan name="Starter" detail="Blogs & hobby projects" price="Rs.0" suffix="/mo forever" features={["1 website", "10,000 pageviews/mo", "3 months data retention", "Public shareable dashboard"]} onClick={onSignup} />
-          <Plan hot name="Indie" detail="Founders & freelancers" price="Rs.199" suffix="/mo" features={["3 websites", "100,000 pageviews/mo", "12 months data", "Custom event tracking", "Weekly email digest", "No powered by branding"]} onClick={() => location.href = "/api/checkout?plan=indie"} />
-          <Plan name="Pro" detail="Agencies & teams" price="Rs.599" suffix="/mo" features={["20 websites", "1M pageviews/mo", "24 months data", "Team access", "White-label option", "Priority support"]} onClick={() => location.href = "/api/checkout?plan=agency"} />
-        </div>
-        <p className="ppx-price-note">Plausible: $9/mo (~Rs.750) · Fathom: $14/mo (~Rs.1,170) · No card for free plan</p>
-      </section>
-
-      <footer className="ppx-footer">
-        <span>PrivPulse. Privacy-first analytics for India.</span>
-        <div>
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
-          <a href="/refund">Refunds</a>
-          <a href="/dpdp">DPDP/GDPR</a>
-        </div>
-      </footer>
-    </>
-  );
-}
-
-function Signup({ created, onCreated }: { created: SignupResponse | null; onCreated: (value: SignupResponse) => void }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-    const form = new FormData(event.currentTarget);
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(form)),
-    });
-    const json = await res.json();
-    setLoading(false);
-    if (!res.ok) {
-      setError(json.error ?? "Could not create account");
-      return;
-    }
-    onCreated(json);
-  }
-
-  return (
-    <section className="ppx-signup-wrap">
-      <div className="ppx-signup-eyebrow">
-        <div className="ppx-eyebrow">Free forever · No credit card</div>
-        <h2>Start in 60 seconds</h2>
-        <p>Join founders who ditched GA4</p>
-      </div>
-      {created ? (
-        <div className="ppx-success show">
-          <div className="ppx-party">✓</div>
-          <h3>You&apos;re in!</h3>
-          <p>Add this to your head:</p>
-          <div className="ppx-code small">{created.script}</div>
-          <a className="ppx-btn primary full" href="/app">Go to app {">"}</a>
-        </div>
-      ) : (
-        <form className="ppx-form-card" onSubmit={submit}>
-          <h2>Create free account</h2>
-          <p>10,000 pageviews/month. Forever free.</p>
-          <Field label="Your name" name="name" placeholder="Rahul Sharma" />
-          <Field label="Email address" name="email" type="email" placeholder="rahul@startup.in" />
-          <Field label="Website URL" name="domain" placeholder="https://mysite.in" />
-          {error && <p className="ppx-error">{error}</p>}
-          <button className="ppx-sub-btn" disabled={loading}>{loading ? "Creating..." : "Create account & get script ->"}</button>
-          <div className="ppx-fn">No cookies. No tracking irony.</div>
-        </form>
-      )}
-    </section>
-  );
-}
-
-function DemoDashboard({ data, range, setRange }: { data: DashboardResponse | null; range: string; setRange: (value: string) => void }) {
-  const series = data?.series ?? [];
-  const max = Math.max(...series.map((point) => point.pageviews), 1);
-  return (
-    <section className="ppx-dash-layout">
-      <aside className="ppx-sidebar">
-        <div className="ppx-sb-section">
-          <div className="ppx-sb-label">Your sites</div>
-          <div className="ppx-site-item active"><span className="ppx-site-dot green" /><span>mystore.in</span><span className="ppx-site-pgv">42.1k</span></div>
-          <div className="ppx-site-item"><span className="ppx-site-dot muted" /><span>blog.mystore.in</span><span className="ppx-site-pgv">8.3k</span></div>
-        </div>
-        <div className="ppx-sb-section">
-          <div className="ppx-sb-label">Navigation</div>
-          {["Overview", "Pages", "Sources", "Locations", "Goals", "Settings"].map((item, index) => (
-            <div className={`ppx-nav-item ${index === 0 ? "active" : ""}`} key={item}>{item}</div>
+        {/* Stats */}
+        <div className="grid grid-cols-4 border border-white/7 rounded-2xl overflow-hidden max-w-xl mx-auto">
+          {[['1.8KB','Script size'],['<500ms','Dashboard'],['0','Cookies'],['₹199','Paid plan/mo']].map(([v,l])=>(
+            <div key={l} className="p-5 border-r border-white/7 last:border-0 text-center">
+              <div className="font-display text-xl font-bold">{v}</div>
+              <div className="text-xs text-white/30 mt-1">{l}</div>
+            </div>
           ))}
         </div>
-      </aside>
-      <div className="ppx-dash-main">
-        <div className="ppx-dash-hd">
-          <div>
-            <div className="ppx-dash-title">{data?.site.name ?? "mystore.in"}</div>
-            <div className="ppx-live-text"><span className="ppx-live-dot" />Live · {data?.realtime ?? 3} visitors now</div>
-          </div>
-          <div className="ppx-range-row">
-            {["7d", "30d", "90d"].map((item) => (
-              <button className={`ppx-range-btn ${range === item ? "active" : ""}`} key={item} onClick={() => setRange(item)}>{item}</button>
-            ))}
-          </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="max-w-4xl mx-auto px-6 pb-20">
+        <p className="text-xs font-mono text-[#4ecca3] tracking-[2px] uppercase mb-5">Why PrivPulse</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            {icon:'🔒',title:'No cookie banner',desc:'Tracks via privacy-preserving hashing. Fully GDPR + DPDP 2023 compliant.',c:'bg-[#4ecca3]/10'},
+            {icon:'⚡',title:'One-line setup',desc:'Paste one <script> tag. Dashboard populates in real-time. No config.',c:'bg-[#6c63ff]/10'},
+            {icon:'📊',title:'One-screen dashboard',desc:'Visitors, pages, referrers, countries — all at a glance. No menus.',c:'bg-[#4ecca3]/10'},
+            {icon:'📧',title:'Monday email digest',desc:'Weekly traffic summary delivered to your inbox every Monday.',c:'bg-[#ffb347]/10'},
+            {icon:'🎯',title:'Codeless events',desc:'Add data-pp="signup" to any button. Auto-tracked. Zero JS.',c:'bg-[#6c63ff]/10'},
+            {icon:'🇮🇳',title:'Built for India',desc:'Priced in ₹. 4× cheaper than Plausible. DPDP-ready out of the box.',c:'bg-[#ffb347]/10'},
+          ].map(f=>(
+            <div key={f.title} className="bg-[#111118] border border-white/7 rounded-xl p-5 hover:border-white/12 transition-colors">
+              <div className={`w-9 h-9 rounded-lg ${f.c} flex items-center justify-center text-base mb-3`}>{f.icon}</div>
+              <h3 className="font-display text-sm font-semibold mb-1.5">{f.title}</h3>
+              <p className="text-xs text-white/40 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
         </div>
-        <div className="ppx-metrics-grid">
-          <Metric label="UNIQUE VISITORS" value={(data?.metrics.visitors ?? 18432).toLocaleString()} note="↑ 12.4%" />
-          <Metric label="PAGEVIEWS" value={(data?.metrics.pageviews ?? 42109).toLocaleString()} note="↑ 8.7%" />
-          <Metric label="EVENTS" value={(data?.metrics.events ?? 1240).toLocaleString()} note="tracked" />
-          <Metric label="BOUNCE RATE" value={`${data?.metrics.bounceRate ?? 44}%`} note="↓ 2.1%" />
+      </section>
+
+      {/* CODE SNIPPET */}
+      <section className="max-w-3xl mx-auto px-6 pb-20">
+        <p className="text-xs font-mono text-[#4ecca3] tracking-[2px] uppercase mb-5">Install in 10 seconds</p>
+        <div className="bg-[#16161f] border border-white/7 rounded-xl p-5 font-mono text-sm leading-loose">
+          <span className="text-white/25">{`<!-- Paste before </head> -->`}</span><br/>
+          <span className="text-[#6c63ff]">&lt;script</span> <span className="text-[#4ecca3]">async</span><br/>
+          &nbsp;&nbsp;<span className="text-[#4ecca3]">src</span>=<span className="text-[#4ecca3]">&quot;https://privpulse.in/p.js&quot;</span><br/>
+          &nbsp;&nbsp;<span className="text-[#4ecca3]">data-site</span>=<span className="text-[#4ecca3]">&quot;YOUR-SITE-ID&quot;</span><br/>
+          <span className="text-[#6c63ff]">&gt;&lt;/script&gt;</span>
         </div>
-        <div className="ppx-chart-box">
-          <div className="ppx-chart-title">Visitors over time</div>
-          <div className="ppx-bars">
-            {series.map((point) => (
-              <div key={point.label} className="ppx-bar-wrap">
-                <div className="ppx-bar" style={{ height: `${Math.max(10, (point.pageviews / max) * 150)}px` }} />
-                <span>{point.label}</span>
+      </section>
+
+      {/* PRICING */}
+      <section className="max-w-3xl mx-auto px-6 pb-24">
+        <p className="text-xs font-mono text-[#4ecca3] tracking-[2px] uppercase mb-5">Simple pricing in ₹</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            {name:'Starter',sub:'Blogs & hobby',price:'₹0',period:'/mo forever',feats:['1 website','10k pageviews/mo','90 days data','Public dashboard'],cta:'Get started free',href:'/signup',hot:false},
+            {name:'Indie',sub:'Founders & freelancers',price:'₹199',period:'/mo',feats:['3 websites','100k pageviews/mo','1 year data','Custom events','Weekly email digest','No branding'],cta:'Start 14-day trial',href:'/signup',hot:true},
+            {name:'Pro',sub:'Agencies & teams',price:'₹599',period:'/mo',feats:['20 websites','1M pageviews/mo','2 years data','Team access','White-label','Priority support'],cta:'Contact us',href:'/signup',hot:false},
+          ].map(p=>(
+            <div key={p.name} className={`rounded-xl p-6 border ${p.hot?'border-[#6c63ff] bg-[#6c63ff]/6':'border-white/7 bg-[#111118]'}`}>
+              <div className="flex justify-between items-start mb-1">
+                <div className="font-display font-bold text-[15px]">{p.name}</div>
+                {p.hot && <span className="text-[10px] bg-[#6c63ff] text-white px-2 py-0.5 rounded-full">POPULAR</span>}
               </div>
-            ))}
-          </div>
+              <div className="text-[11px] text-white/30 mb-3">{p.sub}</div>
+              <div className="font-display text-3xl font-bold mb-1">{p.price}<span className="text-sm font-normal text-white/30">{p.period}</span></div>
+              <ul className="mt-4 space-y-2">
+                {p.feats.map(f=><li key={f} className="text-xs text-white/40 flex gap-2"><span className="text-[#4ecca3] font-bold">✓</span>{f}</li>)}
+              </ul>
+              <Link href={p.href} className={`mt-5 block text-center py-2.5 rounded-lg text-sm font-medium transition-colors ${p.hot?'bg-[#6c63ff] text-white hover:bg-[#7c74ff]':'bg-white/5 text-white border border-white/10 hover:bg-white/8'}`}>{p.cta}</Link>
+            </div>
+          ))}
         </div>
-        <div className="ppx-two-col">
-          <Table title="TOP PAGES" rows={data?.topPages ?? []} />
-          <Table title="SOURCES" rows={data?.referrers ?? []} />
-          <Table title="COUNTRIES" rows={data?.countries ?? []} />
-          <Table title="DEVICES" rows={data?.devices ?? []} />
+        <p className="text-center text-xs text-white/25 mt-4">vs Plausible: $9/mo (~₹750) · vs Fathom: $14/mo (~₹1,170) · No card for free plan</p>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/5 px-6 py-8 text-center text-xs text-white/25">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#4ecca3]"/>
+          <span className="font-display font-bold text-white/40">PrivPulse</span>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function Field({ label, name, placeholder, type = "text" }: { label: string; name: string; placeholder: string; type?: string }) {
-  return <div className="ppx-ig"><label>{label}</label><input required name={name} type={type} placeholder={placeholder} /></div>;
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return <div className="ppx-stat"><div className="ppx-stat-val">{value}</div><div className="ppx-stat-label">{label}</div></div>;
-}
-
-function Feature({ icon, tint, title, text }: { icon: string; tint: string; title: string; text: string }) {
-  return <div className="ppx-feat-card"><div className={`ppx-feat-icon ${tint}`}>{icon}</div><h4>{title}</h4><p>{text}</p></div>;
-}
-
-function Plan({ name, detail, price, suffix, features, hot, onClick }: { name: string; detail: string; price: string; suffix: string; features: string[]; hot?: boolean; onClick: () => void }) {
-  return (
-    <div className={`ppx-plan ${hot ? "hot" : ""}`}>
-      <div className="ppx-plan-head"><div className="ppx-plan-name">{name}</div>{hot && <span>POPULAR</span>}</div>
-      <div className="ppx-plan-detail">{detail}</div>
-      <div className="ppx-plan-price">{price}<span>{suffix}</span></div>
-      <div className="ppx-plan-feats">{features.map((feature) => <div className="ppx-pf" key={feature}>{feature}</div>)}</div>
-      <button className={`ppx-plan-btn ${hot ? "hot" : ""}`} onClick={onClick}>{hot ? "Start checkout" : "Get started"}</button>
-    </div>
-  );
-}
-
-function Metric({ label, value, note }: { label: string; value: string; note: string }) {
-  return <div className="ppx-mc"><div className="lbl">{label}</div><div className="val">{value}</div><div className="chg">{note}</div></div>;
-}
-
-function Table({ title, rows }: { title: string; rows: { label: string; value: number }[] }) {
-  const safeRows = rows.length ? rows : [{ label: "No data yet", value: 0 }];
-  const max = Math.max(...safeRows.map((row) => row.value), 1);
-  return (
-    <div className="ppx-tbl-card">
-      <div className="ppx-tbl-title"><span>{title}</span><span>VALUE</span></div>
-      {safeRows.map((row) => (
-        <div className="ppx-tbl-row" key={row.label}>
-          <div className="ppx-tbl-lbl">{row.label}</div>
-          <div className="ppx-tbl-bar-bg"><div className="ppx-tbl-bar" style={{ width: `${(row.value / max) * 100}%` }} /></div>
-          <div className="ppx-tbl-val">{row.value.toLocaleString()}</div>
+        <p>Privacy-first analytics for India · GDPR + DPDP compliant · No cookies ever</p>
+        <div className="flex gap-4 justify-center mt-3">
+          <Link href="/privacy" className="hover:text-white/50 transition-colors">Privacy</Link>
+          <Link href="/terms" className="hover:text-white/50 transition-colors">Terms</Link>
+          <Link href="mailto:hello@privpulse.in" className="hover:text-white/50 transition-colors">Contact</Link>
         </div>
-      ))}
-    </div>
-  );
+      </footer>
+    </main>
+  )
 }
