@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f3ec;
-  --foreground: #191a17;
+  --background: #0a0a0f;
+  --foreground: #f0f0f8;
+  --pp-bg: #0a0a0f;
+  --pp-bg-2: #111118;
+  --pp-bg-3: #16161f;
+  --pp-border: rgba(255, 255, 255, 0.08);
+  --pp-border-2: rgba(255, 255, 255, 0.14);
+  --pp-text: #f0f0f8;
+  --pp-muted: #8888aa;
+  --pp-dim: #555570;
+  --pp-accent: #6c63ff;
+  --pp-green: #4ecca3;
+  --pp-green-dim: rgba(78, 204, 163, 0.1);
+  --pp-purple-dim: rgba(108, 99, 255, 0.12);
 }
 
 @theme inline {
@@ -37,4 +49,133 @@ button {
 
 pre {
   font-family: var(--font-geist-mono), monospace;
+}
+
+.pp-page {
+  background: var(--pp-bg);
+  color: var(--pp-text);
+}
+
+.pp-nav {
+  border-bottom: 1px solid var(--pp-border);
+  background: rgba(10, 10, 15, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.pp-shell {
+  border: 1px solid var(--pp-border);
+  background: var(--pp-bg-2);
+  border-radius: 12px;
+}
+
+.pp-card {
+  border: 1px solid var(--pp-border);
+  background: var(--pp-bg-2);
+  border-radius: 12px;
+}
+
+.pp-card-2 {
+  border: 1px solid var(--pp-border);
+  background: var(--pp-bg-3);
+  border-radius: 12px;
+}
+
+.pp-input {
+  width: 100%;
+  border: 1px solid var(--pp-border-2);
+  background: var(--pp-bg-3);
+  color: var(--pp-text);
+  border-radius: 8px;
+  padding: 11px 12px;
+  outline: none;
+}
+
+.pp-input:focus {
+  border-color: var(--pp-accent);
+}
+
+.pp-button {
+  background: var(--pp-accent);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.pp-button:hover {
+  background: #7c74ff;
+}
+
+.pp-ghost {
+  border: 1px solid var(--pp-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pp-text);
+  border-radius: 8px;
+}
+
+.pp-muted {
+  color: var(--pp-muted);
+}
+
+.pp-dim {
+  color: var(--pp-dim);
+}
+
+.pp-grad {
+  background: linear-gradient(135deg, #6c63ff, #4ecca3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pp-logo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--pp-green);
+  box-shadow: 0 0 10px var(--pp-green);
+}
+
+.pp-page .bg-white,
+.pp-page [class*="bg-[#f6f3ec]"] {
+  background-color: var(--pp-bg-2) !important;
+}
+
+.pp-page [class*="bg-[#111]"],
+.pp-page .bg-black {
+  background-color: var(--pp-accent) !important;
+}
+
+.pp-page [class*="bg-emerald-100"] {
+  background-color: var(--pp-green-dim) !important;
+}
+
+.pp-page [class*="text-[#191a17]"],
+.pp-page [class*="text-[#141412]"],
+.pp-page .text-black,
+.pp-page [class*="text-black"] {
+  color: var(--pp-text) !important;
+}
+
+.pp-page [class*="text-black/"],
+.pp-page [class*="text-white/65"],
+.pp-page [class*="text-white/70"] {
+  color: var(--pp-muted) !important;
+}
+
+.pp-page [class*="border-black/"],
+.pp-page [class*="border-white/"] {
+  border-color: var(--pp-border) !important;
+}
+
+.pp-page input,
+.pp-page textarea {
+  background-color: var(--pp-bg-3) !important;
+  border-color: var(--pp-border-2) !important;
+  color: var(--pp-text) !important;
+}
+
+.pp-page pre {
+  background-color: var(--pp-bg-3) !important;
+  color: var(--pp-text) !important;
+  border: 1px solid var(--pp-border);
 }

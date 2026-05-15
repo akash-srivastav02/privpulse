@@ -12,13 +12,21 @@ export type SessionUser = {
   name?: string | null;
 };
 
+export type LoginCodeResult = {
+  code: string;
+  emailSent: boolean;
+  emailError?: string;
+};
+
 export function generateLoginCode() {
   return String(randomInt(100000, 999999));
 }
 
-export async function createLoginCode(email: string) {
+export async function createLoginCode(email: string): Promise<LoginCodeResult> {
   const code = generateLoginCode();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  let emailSent = false;
+  let emailError: string | undefined;
 
   if (hasSupabase) {
     const supabase = getSupabaseAdmin()!;
@@ -34,15 +42,20 @@ export async function createLoginCode(email: string) {
 
   if (hasResend) {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: process.env.AUTH_FROM_EMAIL ?? process.env.DIGEST_FROM_EMAIL ?? "PrivPulse <onboarding@resend.dev>",
       to: email,
       subject: "Your PrivPulse login code",
       html: `<p>Your PrivPulse login code is <strong>${code}</strong>.</p><p>It expires in 10 minutes.</p>`,
     });
+    if (result.error) {
+      emailError = result.error.message;
+    } else {
+      emailSent = true;
+    }
   }
 
-  return code;
+  return { code, emailSent, emailError };
 }
 
 export async function verifyLoginCode(email: string, code: string) {

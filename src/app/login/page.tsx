@@ -11,7 +11,7 @@ export default async function LoginPage({
   const next = params.next?.startsWith("/") ? params.next : "/app";
 
   return (
-    <main className="min-h-screen bg-[#f6f3ec] px-4 py-10 text-[#191a17] sm:px-6">
+    <main className="pp-page min-h-screen bg-[#f6f3ec] px-4 py-10 text-[#191a17] sm:px-6">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[0.9fr_1fr] lg:items-center">
         <div>
           <Link href="/" className="inline-flex items-center gap-2 font-semibold tracking-tight">

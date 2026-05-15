@@ -31,7 +31,7 @@ export default function LoginForm({ next }: { next: string }) {
     }
 
     setStep("code");
-    setMessage(json.devCode ? `Use test code ${json.devCode}` : "Check your email for a 6-digit login code.");
+    setMessage(json.devCode ? `Temporary beta login code: ${json.devCode}` : json.message ?? "Check your email for a 6-digit login code.");
   }
 
   async function verify(event: FormEvent<HTMLFormElement>) {

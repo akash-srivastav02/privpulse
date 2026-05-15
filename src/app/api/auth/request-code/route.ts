@@ -11,10 +11,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
     }
 
-    const code = await createLoginCode(email);
+    const result = await createLoginCode(email);
+    const showFallbackCode = process.env.SHOW_LOGIN_CODE_FALLBACK === "true" || !result.emailSent;
     return NextResponse.json({
       ok: true,
-      devCode: process.env.NODE_ENV === "production" || hasResend ? undefined : code,
+      emailSent: result.emailSent,
+      message: result.emailSent
+        ? "Login code sent."
+        : "Email delivery is not fully configured yet. Use the temporary beta code shown below.",
+      emailError: result.emailError,
+      devCode: showFallbackCode ? result.code : process.env.NODE_ENV === "production" || hasResend ? undefined : result.code,
     });
   } catch (error) {
     console.error(error);

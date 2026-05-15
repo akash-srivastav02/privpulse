@@ -85,7 +85,7 @@ export default function Home() {
   const script = signup?.script ?? `<script async src="${typeof window === "undefined" ? "" : window.location.origin}/p.js" data-site="${demoSiteId}"></script>`;
 
   return (
-    <main className="min-h-screen bg-[#f6f3ec] text-[#191a17]">
+    <main className="pp-page min-h-screen bg-[#f6f3ec] text-[#191a17]">
       <nav className="sticky top-0 z-50 border-b border-black/10 bg-[#f6f3ec]/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <button className="flex items-center gap-2" onClick={() => setView("landing")}>
