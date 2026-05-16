@@ -59,7 +59,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="block text-xs text-white/50 mb-1.5">Email</label>
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required
+            <input type="text" inputMode="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} required
               className="w-full bg-[#16161f] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#6c63ff] transition-colors"
               placeholder="you@startup.in"/>
           </div>

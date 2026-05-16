@@ -36,7 +36,7 @@ export default function ContactPage() {
         <form onSubmit={submit} className="pp-form-card">
           {status && <div className="pp-form-alert">{status}</div>}
           <label>Email address</label>
-          <input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" />
+          <input type="text" inputMode="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" />
           <label>How can we help?</label>
           <textarea required value={message} onChange={e=>setMessage(e.target.value)} rows={7} placeholder="Tell us what you need..." />
           <button disabled={loading} className="pp-form-submit">{loading ? 'Sending...' : 'Send message →'}</button>
