@@ -9,6 +9,7 @@ export default function TopBar({user,onLogout}:{user:any;onLogout:()=>void}) {
         <span className="font-display font-bold text-sm">Priv<span className="text-[#4ecca3]">Pulse</span></span>
       </Link>
       <div className="flex items-center gap-3">
+        <Link href="/settings" className="text-xs text-white/30 hover:text-white transition-colors px-3 py-1 border border-white/10 rounded-lg">Settings</Link>
         <span className="text-xs text-white/30">{user?.email}</span>
         <button onClick={onLogout} className="text-xs text-white/30 hover:text-white transition-colors px-3 py-1 border border-white/10 rounded-lg">Logout</button>
       </div>

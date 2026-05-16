@@ -21,10 +21,11 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const isAuth = !!user
   const isDashboard = path.startsWith('/dashboard')
+  const isSettings = path.startsWith('/settings')
   const isAuthPage = path === '/login' || path === '/signup'
 
-  if (isDashboard && !isAuth) return NextResponse.redirect(new URL('/login', request.url))
+  if ((isDashboard || isSettings) && !isAuth) return NextResponse.redirect(new URL('/login', request.url))
   if (isAuthPage && isAuth) return NextResponse.redirect(new URL('/dashboard', request.url))
   return response
 }
-export const config = { matcher: ['/dashboard/:path*', '/login', '/signup'] }
+export const config = { matcher: ['/dashboard/:path*', '/settings/:path*', '/login', '/signup'] }

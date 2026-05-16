@@ -53,6 +53,9 @@ export default function LoginPage() {
         <p className="text-center text-xs text-white/30 mt-4">
           No account? <Link href="/signup" className="text-[#6c63ff] hover:underline">Sign up free</Link>
         </p>
+        <p className="text-center text-xs text-white/25 mt-2">
+          <Link href="/reset-password" className="hover:text-white/50 transition-colors">Forgot password?</Link>
+        </p>
       </div>
     </main>
   )

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const siteId = request.nextUrl.searchParams.get('siteId') || ''
   const checkout = CHECKOUTS[plan]
   if (!checkout) {
-    return NextResponse.redirect(new URL(`/dashboard?billing=missing&plan=${encodeURIComponent(plan)}`, request.url))
+    return NextResponse.redirect(new URL(`/billing/unavailable?plan=${encodeURIComponent(plan)}`, request.url))
   }
 
   const url = new URL(checkout)
@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
   url.searchParams.set('checkout[custom][user_id]', user.id)
   url.searchParams.set('checkout[custom][plan]', plan)
   if (siteId) url.searchParams.set('checkout[custom][site_id]', siteId)
+  url.searchParams.set('checkout[success_url]', `${request.nextUrl.origin}/billing/success`)
+  url.searchParams.set('checkout[cancel_url]', `${request.nextUrl.origin}/billing/cancel`)
 
   return NextResponse.redirect(url)
 }
